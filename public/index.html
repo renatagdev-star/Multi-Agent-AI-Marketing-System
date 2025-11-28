@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>AI Ad Research Agents</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #0f172a;
+        --bg-elevated: #020617;
+        --card-bg: #020617;
+        --accent: #6366f1;
+        --accent-soft: rgba(99, 102, 241, 0.12);
+        --accent-strong: #4f46e5;
+        --border-subtle: #1f2937;
+        --text-main: #e5e7eb;
+        --text-muted: #9ca3af;
+        --danger: #f97373;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: radial-gradient(circle at top, #111827 0, #020617 50%);
+        color: var(--text-main);
+        max-width: 1024px;
+        margin: 0 auto;
+        padding: 32px 16px 40px;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      p {
+        margin: 4px 0;
+        font-size: 14px;
+        color: var(--text-muted);
+      }
+
+      code {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+          Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        background: rgba(15, 23, 42, 0.9);
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+
+      label {
+        display: block;
+        margin-top: 10px;
+        font-weight: 500;
+        font-size: 13px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 8px 10px;
+        margin-top: 4px;
+        border-radius: 8px;
+        border: 1px solid var(--border-subtle);
+        background: #020617;
+        color: var(--text-main);
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease,
+          background 0.15s ease;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.45);
+        background: #020617;
+      }
+
+      button {
+        margin-top: 14px;
+        padding: 9px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border-radius: 999px;
+        border: none;
+        outline: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: transform 0.08s ease, box-shadow 0.12s ease,
+          background 0.15s ease;
+      }
+
+      button:active {
+        transform: translateY(1px);
+        box-shadow: none;
+      }
+
+      #btnIngest {
+        background: linear-gradient(
+          135deg,
+          var(--accent),
+          var(--accent-strong)
+        );
+        color: white;
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.45);
+      }
+
+      #btnIngest:hover {
+        background: linear-gradient(
+          135deg,
+          var(--accent-strong),
+          var(--accent)
+        );
+      }
+
+      #btnAnalyze {
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        border: 1px solid var(--border-subtle);
+      }
+
+      #btnAnalyze:hover {
+        background: #020617;
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+      }
+
+      .row > div {
+        flex: 1;
+      }
+
+      .card {
+        border-radius: 16px;
+        padding: 14px 16px 16px;
+        margin-top: 14px;
+        border: 1px solid var(--border-subtle);
+        background: radial-gradient(
+            circle at top left,
+            rgba(148, 163, 184, 0.12),
+            transparent 40%
+          ),
+          var(--card-bg);
+        box-shadow: 0 18px 35px rgba(15, 23, 42, 0.8);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        font-size: 11px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        margin-left: 6px;
+      }
+
+      .badge-danger {
+        background: rgba(248, 113, 113, 0.12);
+        color: var(--danger);
+      }
+
+      .persona {
+        border: 1px solid var(--border-subtle);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 8px;
+        background: radial-gradient(
+            circle at top right,
+            rgba(79, 70, 229, 0.16),
+            transparent 55%
+          ),
+          #020617;
+      }
+
+      .persona h4 {
+        margin: 0 0 4px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .persona small {
+        color: var(--text-muted);
+      }
+
+      .persona section {
+        margin-top: 4px;
+        font-size: 13px;
+      }
+
+      .hook-item {
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+
+      #prettyResult h3 {
+        margin-top: 16px;
+        margin-bottom: 6px;
+        font-size: 15px;
+      }
+
+      #prettyResult p {
+        font-size: 13px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-muted);
+        margin-top: 6px;
+      }
+
+      .status {
+        font-size: 13px;
+        margin: 8px 0 0;
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header style="margin-bottom: 18px">
+      <h1>AI Ad Research & Persona System</h1>
+      <p>
+        Step 1 (optional): run YouTube research and save it to the database.
+        Step 2: generate personas and hooks from saved data for any niche.
+      </p>
+    </header>
+
+    <div class="card">
+      <h2>Global inputs</h2>
+
+      <label>
+        Niche for YouTube search
+        <input
+          id="nicheIngest"
+          type="text"
+          value="postpartum fitness for moms"
+        />
+      </label>
+
+      <div class="row">
+        <div>
+          <label>
+            Language
+            <input id="language" type="text" value="EN" />
+          </label>
+        </div>
+        <div>
+          <label>
+            Country
+            <input id="country" type="text" value="US" />
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>
+        1) Search YouTube & save to Neon
+        <span class="badge">calls YouTube API</span>
+      </h2>
+      <p>
+        This triggers: Query Builder → YouTube Search → Research Agent, and
+        saves the result into the <code>niche_runs</code> table.
+      </p>
+
+      <label>
+        Videos per query (optional)
+        <input id="perQuery" type="number" value="3" />
+      </label>
+
+      <button id="btnIngest">
+        <span>▶️</span>
+        <span>Search YouTube & Save</span>
+      </button>
+
+      <div id="ingestStatus" class="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>
+        2) Generate output from database
+        <span class="badge">no YouTube calls</span>
+      </h2>
+      <p>
+        Select a niche from the database and generate personas & hooks. If
+        personas/creatives already exist for this niche, they are loaded from
+        cache.
+      </p>
+
+      <label>
+        Niche (from database)
+        <select id="nicheAnalyze">
+          <option value="">Loading niches...</option>
+        </select>
+      </label>
+
+      <button id="btnAnalyze">
+        <span>🧠</span>
+        <span>Run analysis from DB</span>
+      </button>
+
+      <div id="analyzeStatus" class="status"></div>
+    </div>
+
+    <div class="card" style="margin-top: 18px">
+      <h2>Result (personas & hooks)</h2>
+      <div id="prettyResult">No result yet.</div>
+    </div>
+
+    <script>
+      const prettyResultEl = document.getElementById("prettyResult");
+      const ingestStatusEl = document.getElementById("ingestStatus");
+      const analyzeStatusEl = document.getElementById("analyzeStatus");
+      const btnIngest = document.getElementById("btnIngest");
+      const btnAnalyze = document.getElementById("btnAnalyze");
+      const nicheAnalyzeSelect = document.getElementById("nicheAnalyze");
+
+      function getCommonInput() {
+        return {
+          nicheIngest: document.getElementById("nicheIngest").value,
+          language: document.getElementById("language").value || "EN",
+          country: document.getElementById("country").value || "US",
+        };
+      }
+
+      async function loadNiches() {
+        try {
+          const res = await fetch("/api/niches");
+          const data = await res.json();
+
+          nicheAnalyzeSelect.innerHTML = "";
+
+          if (!res.ok) {
+            nicheAnalyzeSelect.innerHTML =
+              '<option value="">Error loading niches</option>';
+            return;
+          }
+
+          if (!data.niches || data.niches.length === 0) {
+            nicheAnalyzeSelect.innerHTML =
+              '<option value="">No niches in database yet</option>';
+            return;
+          }
+
+          data.niches.forEach((niche) => {
+            const opt = document.createElement("option");
+            opt.value = niche;
+            opt.textContent = niche;
+            nicheAnalyzeSelect.appendChild(opt);
+          });
+        } catch (err) {
+          nicheAnalyzeSelect.innerHTML =
+            '<option value="">Failed to load niches</option>';
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadNiches);
+
+      btnIngest.addEventListener("click", async () => {
+        const { nicheIngest, language, country } = getCommonInput();
+        const perQueryValue = document.getElementById("perQuery").value;
+        const perQuery = perQueryValue ? Number(perQueryValue) : 3;
+
+        ingestStatusEl.textContent =
+          "Running YouTube ingest (this calls the YouTube API)...";
+        analyzeStatusEl.textContent = "";
+        prettyResultEl.textContent = "No result yet.";
+
+        try {
+          const res = await fetch("/api/ingest-youtube", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              niche: nicheIngest,
+              language,
+              country,
+              perQuery,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            ingestStatusEl.textContent =
+              "Error in ingest: " + (data.error || "Unknown error");
+            return;
+          }
+
+          ingestStatusEl.textContent =
+            "YouTube ingest finished. Row ID: " +
+            data.rowId +
+            ", videos fetched: " +
+            data.videosCount +
+            ". You can now run analysis from DB.";
+          loadNiches();
+        } catch (err) {
+          ingestStatusEl.textContent = "Request failed.";
+        }
+      });
+
+      btnAnalyze.addEventListener("click", async () => {
+        const niche = nicheAnalyzeSelect.value;
+        const language = document.getElementById("language").value || "EN";
+        const country = document.getElementById("country").value || "US";
+
+        if (!niche) {
+          analyzeStatusEl.textContent =
+            "Please select a niche from the dropdown.";
+          return;
+        }
+
+        analyzeStatusEl.textContent =
+          "Running analysis from DB (no YouTube calls)...";
+        ingestStatusEl.textContent = "";
+
+        try {
+          const res = await fetch("/api/analyze", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              niche,
+              language,
+              country,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            analyzeStatusEl.textContent =
+              "Error in analysis: " + (data.error || "Unknown error");
+            return;
+          }
+
+          const analysis = data.analysis;
+          const personas = analysis.personas || [];
+          const creatives = analysis.creatives || {};
+          const hooks = (creatives.hooks || []).slice(0, 20);
+
+          analyzeStatusEl.textContent = analysis.cached
+            ? "Loaded personas & hooks from cache."
+            : "Generated personas & hooks via agents and saved to DB.";
+
+          let html = "";
+
+          html += `<p class="pill">Run ID: <strong style="margin-left:4px;">${
+            analysis.runId
+          }</strong> · ${analysis.cached ? "cached" : "generated now"}</p>`;
+
+          html += `<h3>Personas (${personas.length})</h3>`;
+          if (personas.length === 0) {
+            html += `<p>No personas found.</p>`;
+          } else {
+            personas.forEach((p) => {
+              html += `<div class="persona">
+                <h4>${p.name || "Unnamed persona"}</h4>
+                ${
+                  p.age || p.segment
+                    ? `<small>${p.age ? p.age + " · " : ""}${
+                        p.segment || ""
+                      }</small>`
+                    : ""
+                }
+                ${p.short_bio ? `<section>${p.short_bio}</section>` : ""}
+                ${
+                  p.pains && p.pains.length
+                    ? `<section><strong>Pains:</strong> ${p.pains
+                        .slice(0, 3)
+                        .join(", ")}</section>`
+                    : ""
+                }
+                ${
+                  p.desires && p.desires.length
+                    ? `<section><strong>Desires:</strong> ${p.desires
+                        .slice(0, 3)
+                        .join(", ")}</section>`
+                    : ""
+                }
+              </div>`;
+            });
+          }
+
+          html += `<h3>Hooks (${hooks.length})</h3>`;
+          if (hooks.length === 0) {
+            html += `<p>No hooks found.</p>`;
+          } else {
+            hooks.forEach((h) => {
+              html += `<div class="hook-item">
+                <strong>${h.persona_name || "Persona"}:</strong>
+                <span> ${h.text}</span>
+              </div>`;
+            });
+          }
+
+          prettyResultEl.innerHTML = html;
+        } catch (err) {
+          analyzeStatusEl.textContent = "Request failed.";
+        }
+      });
+    </script>
+  </body>
+</html>
